@@ -3,6 +3,7 @@ from models import User, db
 from dependencies import get_session
 from pwdlib import PasswordHash
 from security import password_hash
+from schemas import UserSchema
 
 auth_router = APIRouter(prefix="/auth", tags={"AUTH"})
 
@@ -11,14 +12,14 @@ async def root():
     return {"message": "auth root"}
 
 @auth_router.post("/create")
-async def create(name:str, email: str, password: str, session=Depends(get_session)):
-    user_exists = session.query(User).filter(User.email==email).first()
+async def create(user_schema: UserSchema, session=Depends(get_session)):
+    user_exists = session.query(User).filter(User.email==user_schema.email).first()
     if user_exists:
         raise HTTPException(status_code=400, detail="user with this email already exists")
 
-    hashed = password_hash.hash(password)
+    hashed = password_hash.hash(user_schema.password)
 
-    new_user = User(name=name, email=email, password=hashed)
+    new_user = User(name=user_schema.name, email=user_schema.email, password=hashed)
     session.add(new_user)
     session.commit()
-    return {"message": f"user {name} with email {email} created!"}
+    return {"message": f"user {new_user.name} with email {new_user.email} created!"}
