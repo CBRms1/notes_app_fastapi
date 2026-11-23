@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from models import User, db
-from dependencies import get_session
+from dependencies import get_session, verify_token
 from security import hash_password, verify_password
 from schemas import UserSchema, LoginSchema
 from jose import jwt, JWTError
@@ -12,19 +12,11 @@ auth_router = APIRouter(prefix="/auth", tags={"AUTH"})
 def create_token(user_id, token_expire_time=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)):
     expiration_date = datetime.now(timezone.utc) + token_expire_time
 
-    dic_info = {"sub": user_id, "exp": expiration_date}
+    dic_info = {"sub": str(user_id), "exp": expiration_date}
 
     encoded_jwt = jwt.encode(dic_info, SECRET_KEY, ALGORITHM)
 
     return encoded_jwt
-
-def verify_token(token, session):
-    # validate token
-    # extract user id through token
-    user_id = 1
-
-    user = session.query(User).filter(User.id==user_id).first()
-    return user
 
 def authenticate(email, password, session):
     user = session.query(User).filter(User.email==email).first()
@@ -76,10 +68,7 @@ async def login(login_schema: LoginSchema, session=Depends(get_session)):
         }
 
 @auth_router.get("/refresh")
-async def use_refresh_token(token, session=Depends(get_session)):
-    
-    user = verify_token(token, session)
-    
+async def use_refresh_token(user: User=Depends(verify_token)):
     access_token = create_token(user)
 
     return {

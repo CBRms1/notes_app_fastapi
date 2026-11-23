@@ -1,5 +1,8 @@
-from sqlalchemy.orm import sessionmaker
-from models import db
+from fastapi import Depends, HTTPException
+from sqlalchemy.orm import sessionmaker, Session
+from models import db, User
+from jose import jwt, JWTError
+from main import SECRET_KEY, ALGORITHM, oauth2_schema
 
 def get_session():
     try:
@@ -8,3 +11,17 @@ def get_session():
         yield session
     finally:
         session.close()
+
+def verify_token(token: str=Depends(oauth2_schema), session: Session=Depends(get_session)):
+    try:
+        dic_info = jwt.decode(token, SECRET_KEY, ALGORITHM)
+        user_id = int(dic_info.get("sub"))
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Access danied")
+
+    user = session.query(User).filter(id=user_id)
+    
+    if not user:
+        raise HTTPException(status_code=401, detail="Access danied")
+    
+    return user
