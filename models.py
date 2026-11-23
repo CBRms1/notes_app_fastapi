@@ -28,6 +28,3 @@ class Note(Base):
     user_id = Column(ForeignKey("users.id"), nullable=False)
     # relationship
     author = relationship("User", back_populates="notes")
-
-
-# execute metadata to db

@@ -1,8 +1,14 @@
+# dependencies used with Depends()
+
 from fastapi import Depends, HTTPException
 from sqlalchemy.orm import sessionmaker, Session
 from models import db, User
 from jose import jwt, JWTError
-from main import SECRET_KEY, ALGORITHM, oauth2_schema
+from config import SECRET_KEY, ALGORITHM
+from fastapi.security import OAuth2PasswordBearer
+
+# oauth2 schema to authenticate with fastapi docs
+oauth2_schema = OAuth2PasswordBearer(tokenUrl="auth/login-form")
 
 def get_session():
     try:
@@ -19,9 +25,11 @@ def verify_token(token: str=Depends(oauth2_schema), session: Session=Depends(get
     except JWTError:
         raise HTTPException(status_code=401, detail="Access danied")
 
-    user = session.query(User).filter(id=user_id)
+    print(user_id)
+    user = session.query(User).filter(User.id==user_id).first()
     
     if not user:
         raise HTTPException(status_code=401, detail="Access danied")
     
     return user
+
