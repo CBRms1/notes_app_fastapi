@@ -13,7 +13,6 @@ class UserSchema(BaseModel):
 class NoteSchema(BaseModel):
     title: str
     description: str
-    user_id: int
 
     class Config:
         from_attributes = True
