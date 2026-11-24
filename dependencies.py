@@ -25,7 +25,6 @@ def verify_token(token: str=Depends(oauth2_schema), session: Session=Depends(get
     except JWTError:
         raise HTTPException(status_code=401, detail="Access danied")
 
-    print(user_id)
     user = session.query(User).filter(User.id==user_id).first()
     
     if not user:
