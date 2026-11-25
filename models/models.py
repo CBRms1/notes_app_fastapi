@@ -16,7 +16,7 @@ class User(Base):
     email = Column(String, nullable=False, unique=True)
     password = Column(String, nullable=False)
     #relationship
-    notes = relationship("Note", back_populates="author")
+    notes = relationship("Note", cascade="all, delete")
 
 
 class Note(Base):
@@ -26,5 +26,3 @@ class Note(Base):
     title = Column(String, nullable=False)
     description = Column(String, nullable=False)
     user_id = Column(ForeignKey("users.id"), nullable=False)
-    # relationship
-    author = relationship("User", back_populates="notes")

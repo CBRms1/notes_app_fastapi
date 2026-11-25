@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from schemas import NoteSchema
 from dependencies import get_session
-from models import Note, User
+from models.models import Note, User
 from sqlalchemy.orm import Session
 from dependencies import verify_token
 

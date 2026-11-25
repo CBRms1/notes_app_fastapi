@@ -1,7 +1,7 @@
 # auth route
 
 from fastapi import APIRouter, Depends, HTTPException
-from models import User, db
+from models.models import User, db
 from sqlalchemy.orm import Session
 from dependencies import get_session, verify_token
 from security import hash_password, verify_password, create_token
